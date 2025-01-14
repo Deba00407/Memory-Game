@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Block from './Block';
 
 function createGrid(rows, cols) {
@@ -29,6 +29,10 @@ function MemoryGame() {
     const [gridSize, setGridSize] = useState(4);
     const [grid, setGrid] = useState(createGrid(gridSize, gridSize));
 
+    useEffect(() => {
+        setGrid(createGrid(gridSize, gridSize));
+    }, [gridSize]);
+
     return (
         <div className="p-4">
             <label htmlFor="grid-size" className="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -36,13 +40,14 @@ function MemoryGame() {
                 <input
                     type="number"
                     min={4}
+                    max={10}
                     step={2}
                     name="grid-size"
                     id="grid-size"
                     value={gridSize}
                     onChange={(e) => {
                         const val = e.target.value;
-                        if (val % 2 !== 0) {
+                        if (val >= 4 && val % 2 !== 0) {
                             alert('Grid size should be an even number');
                             setGridSize(4);
                             return;
@@ -57,17 +62,13 @@ function MemoryGame() {
 
 
             <div className="mt-6 space-y-2">
-                {
-                    Array.from({ length: gridSize }).map((_, i) => (
-                        <div key={i} className="flex justify-center space-x-3">
-                            {
-                                Array.from({ length: gridSize }).map((_, j) => (
-                                    <Block key={i * gridSize + j} value={grid[i][j]} />
-                                ))
-                            }
-                        </div>
-                    ))
-                }
+                {grid?.map((row, rowIndex) => (
+                    <div key={rowIndex} className="flex space-x-2">
+                        {row.map((value, colIndex) => (
+                            <Block key={colIndex} value={value} />
+                        ))}
+                    </div>
+                ))}
             </div>
         </div>
     )
