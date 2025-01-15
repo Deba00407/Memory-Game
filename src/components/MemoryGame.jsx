@@ -21,17 +21,47 @@ function createGrid(rows, cols) {
         grid.push(numbers.splice(0, cols));
     }
 
-    return grid;
-}
+    const map = new Map();
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            if (map.has(grid[i][j])) {
+                map.get(grid[i][j]).push({ row: i, col: j });
+            } else {
+                map.set(grid[i][j], [{ row: i, col: j, taken: false }]);
+            }
+        }
+    }
 
+    return { grid, map };
+}
 
 function MemoryGame() {
     const [gridSize, setGridSize] = useState(4);
-    const [grid, setGrid] = useState(createGrid(gridSize, gridSize));
+    const [grid, setGrid] = useState([]);
+    const [valueMap, setValueMap] = useState(new Map());
 
     useEffect(() => {
-        setGrid(createGrid(gridSize, gridSize));
+        const { grid, map } = createGrid(gridSize, gridSize);
+        setGrid(grid);
+        setValueMap(map);
     }, [gridSize]);
+
+    const getPosition = (value) => {
+        const positions = valueMap.get(value);
+        if (positions[0].taken && positions[1].taken) {
+            return null;
+        } else if (!positions[0].taken) {
+            positions[0].taken = true;
+            return positions[0];
+        } else {
+            positions[1].taken = true;
+            return positions[1];
+        }
+    };
+
+    const handleBlockClick = (value, position) => {
+        console.log({ value, position });
+    };
 
     return (
         <div className="p-4">
@@ -40,19 +70,18 @@ function MemoryGame() {
                 <input
                     type="number"
                     min={4}
-                    max={10}
                     step={2}
                     name="grid-size"
                     id="grid-size"
                     value={gridSize}
                     onChange={(e) => {
-                        const val = e.target.value;
-                        if (val >= 4 && val % 2 !== 0) {
+                        const val = parseInt(e.target.value, 10);
+                        if (val >= 4 && val % 2 === 0) {
+                            setGridSize(val);
+                        } else {
                             alert('Grid size should be an even number');
                             setGridSize(4);
-                            return;
                         }
-                        setGridSize(val);
                     }}
                     className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-200"
                     placeholder="Size"
@@ -60,18 +89,17 @@ function MemoryGame() {
             </label>
 
 
-
             <div className="mt-6 space-y-2">
-                {grid?.map((row, rowIndex) => (
+                {grid.map((row, rowIndex) => (
                     <div key={rowIndex} className="flex space-x-2">
                         {row.map((value, colIndex) => (
-                            <Block key={colIndex} value={value} />
+                            <Block key={colIndex} value={value} gridposition={getPosition(value)} handleClick={handleBlockClick} />
                         ))}
                     </div>
                 ))}
             </div>
         </div>
-    )
+    );
 }
 
-export default MemoryGame
+export default MemoryGame;

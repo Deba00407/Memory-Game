@@ -1,14 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-function Block({ value }) {
+function Block({ value, handleClick, gridposition }) {
     const [isRevealed, setIsRevealed] = useState(false)
 
-    const handleClick = () => {
+    const onClick = () => {
         setIsRevealed(!isRevealed)
     }
 
+    useEffect(() => {
+        if (isRevealed) {
+            handleClick(value, gridposition)
+        }
+    }, [isRevealed])
+
     return (
-        <div className="card-container" onClick={handleClick}>
+        <div className="card-container" onClick={onClick}>
             <div className={`card ${isRevealed ? 'rotate-y-180 ' : ''}`}>
                 <div className='back'>{value}</div>
                 <div className='front'></div>
