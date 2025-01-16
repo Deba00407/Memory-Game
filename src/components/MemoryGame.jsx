@@ -1,67 +1,59 @@
 import React, { useEffect, useState } from 'react'
+import { nanoid } from 'nanoid';
 import Block from './Block';
 
 function createGrid(rows, cols) {
-    if ((rows * cols) % 2 !== 0) {
-        throw new Error("Grid must have an even number of cells.");
-    }
+    const totalCards = rows * cols;
+    const pairCount = Math.floor(totalCards / 2);
+    const values = [...Array(pairCount).keys()].map((i) => i + 1);
+    const shuffledValues = [...values, ...values]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, totalCards)
+        .map((value) => ({ value, id: nanoid() }));
 
-    const totalCells = rows * cols;
-    const uniqueNumbers = totalCells / 2;
-
-    let numbers = [];
-    for (let i = 1; i <= uniqueNumbers; i++) {
-        numbers.push(i, i);
-    }
-
-    numbers.sort(() => Math.random() - 0.5);
-
-    const grid = [];
-    for (let i = 0; i < rows; i++) {
-        grid.push(numbers.splice(0, cols));
-    }
-
-    const map = new Map();
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            if (map.has(grid[i][j])) {
-                map.get(grid[i][j]).push({ row: i, col: j });
-            } else {
-                map.set(grid[i][j], [{ row: i, col: j, taken: false }]);
-            }
-        }
-    }
-
-    return { grid, map };
+    return shuffledValues;
 }
 
 function MemoryGame() {
     const [gridSize, setGridSize] = useState(4);
     const [grid, setGrid] = useState([]);
-    const [valueMap, setValueMap] = useState(new Map());
+    const [userselected, setUserSelected] = useState([]);
+    const [disabed, setDisabled] = useState(false);
+    const [won, setWon] = useState(false);
 
     useEffect(() => {
-        const { grid, map } = createGrid(gridSize, gridSize);
+        const grid = createGrid(gridSize, gridSize);
         setGrid(grid);
-        setValueMap(map);
     }, [gridSize]);
 
     const getPosition = (value) => {
         const positions = valueMap.get(value);
-        if (positions[0].taken && positions[1].taken) {
-            return null;
-        } else if (!positions[0].taken) {
+        if (!positions[0].taken) {
             positions[0].taken = true;
             return positions[0];
-        } else {
+        } else if (!positions[1].taken) {
             positions[1].taken = true;
             return positions[1];
         }
     };
 
-    const handleBlockClick = (value, position) => {
-        console.log({ value, position });
+    const handleBlockClick = (value, id) => {
+        if (disabed || won) return;
+        console.log(value, id);
+
+        if (userselected.length === 0) {
+            setUserSelected([{ value, id }]);
+        }
+
+        else if (userselected.length === 1) {
+            if (userselected.id === id) return;
+            setUserSelected((prev) => [...prev, { value, id }]);
+        }
     };
+
+    useEffect(() => {
+        console.log(userselected);
+    }, [userselected])
 
     return (
         <div className="p-4">
@@ -79,8 +71,8 @@ function MemoryGame() {
                         if (val >= 4 && val % 2 === 0) {
                             setGridSize(val);
                         } else {
-                            alert('Grid size should be an even number');
                             setGridSize(4);
+                            alert('Grid size should be an even number and greater than 0');
                         }
                     }}
                     className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-200"
@@ -90,14 +82,16 @@ function MemoryGame() {
 
 
             <div className="mt-6 space-y-2">
-                {grid.map((row, rowIndex) => (
-                    <div key={rowIndex} className="flex space-x-2">
-                        {row.map((value, colIndex) => (
-                            <Block key={colIndex} value={value} gridposition={getPosition(value)} handleClick={handleBlockClick} />
-                        ))}
-                    </div>
+                {grid?.map(({ value, id }) => (
+                    <Block
+                        key={id}
+                        id={id}
+                        value={value}
+                        handleClick={handleBlockClick}
+                    />
                 ))}
             </div>
+
         </div>
     );
 }
