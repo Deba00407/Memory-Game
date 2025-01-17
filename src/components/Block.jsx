@@ -12,7 +12,7 @@ function Block({ id, value, handleClick, className, isMatched }) {
         // Flip back if not matched
         setTimeout(() => {
             if (!isMatched) setIsRevealed(false);
-        }, 2000);
+        }, 1000);
     };
 
     return (
