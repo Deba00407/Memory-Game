@@ -65,7 +65,7 @@ function MemoryGame() {
 
         setTimeout(() => {
             setUserSelected([]);
-        }, 2000)
+        }, 1000)
     };
 
     const resetGame = () => {
@@ -142,9 +142,9 @@ function MemoryGame() {
 
 
             {won && (
-                <div className="mt-4 text-center text-2xl font-semibold text-green-500">
+                <div className="mt-4 text-center text-xl text-green-500">
                     You Won!
-                    <button onClick={resetGame} className="ml-4 px-4 py-2 bg-blue-500 text-white rounded">
+                    <button onClick={resetGame} className="ml-4 px-3 py-1 bg-blue-500 text-white rounded">
                         Reset
                     </button>
                 </div>
