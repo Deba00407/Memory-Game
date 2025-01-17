@@ -47,7 +47,16 @@ html, body {
   transform: rotateY(180deg);
 }
 
-
 .rotate-y-180 {
   transform: rotateY(180deg) translateX(-10%);
+}
+
+.matched{
+  background-color: green;
+  color: white;
+}
+
+.card-container.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
